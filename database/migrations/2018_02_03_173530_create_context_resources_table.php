@@ -16,6 +16,7 @@ class CreateContextResourcesTable extends Migration
         Schema::create('context_resources', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+            $table->string('name');
         });
     }
 

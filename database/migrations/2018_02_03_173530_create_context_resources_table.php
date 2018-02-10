@@ -16,6 +16,8 @@ class CreateContextResourcesTable extends Migration
         Schema::create('context_resources', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+            $table->integer('context_id')->unsigned();
+            $table->foreign('context_id')->references('id')->on('contexts')->onDelete('cascade');
             $table->string('name');
         });
     }
@@ -27,6 +29,10 @@ class CreateContextResourcesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('context_resources');
+        Schema::table('context_resources', function($table) {
+            $table->dropForeign('contexts_context_id_foreign');
+
+            $table->foreign('context_id')->references('id')->on('contexts');
+        });
     }
 }

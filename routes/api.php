@@ -17,6 +17,4 @@ Route::post('login', 'UsersController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
     Route::get('context', 'ContextsController@index');
-    Route::get('context/{context_id}/context-resource', 'ContextResourcesController@index');
-    Route::resource('context-resource', 'ContextResourcesController', ['except' => 'index']);
 });

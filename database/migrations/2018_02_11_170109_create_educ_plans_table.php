@@ -16,7 +16,7 @@ class CreateEducPlansTable extends Migration
         Schema::create('educ_plans', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->string('name');
+            $table->string('name')->unique();
         });
     }
 

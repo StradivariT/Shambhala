@@ -17,4 +17,5 @@ Route::post('login', 'UsersController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
     Route::get('context', 'ContextsController@index');
+    Route::resource('educPlan', 'EducPlansController');
 });

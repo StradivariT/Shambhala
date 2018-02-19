@@ -18,7 +18,7 @@ class CreateCoursesTable extends Migration
             $table->timestamps();
             $table->integer('educ_plan_id')->unsigned();
             $table->foreign('educ_plan_id')->references('id')->on('educ_plans')->onDelete('cascade');
-            $table->string('name');
+            $table->string('name')->unique();
         });
     }
 

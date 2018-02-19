@@ -18,7 +18,7 @@ class CreateGroupsTable extends Migration
             $table->timestamps();
             $table->integer('course_id')->unsigned();
             $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
-            $table->string('name');
+            $table->string('name')->unique();
         });
     }
 

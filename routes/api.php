@@ -16,6 +16,11 @@ use Illuminate\Http\Request;
 Route::post('login', 'UsersController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
+    $except = ['except' => ['create', 'show', 'edit']];
+
     Route::get('context', 'ContextsController@index');
-    Route::resource('educPlan', 'EducPlansController');
+
+    Route::resource('educPlan/{educPlan}/course', 'CoursesController', $except);
+    Route::resource('course/{course}/group', 'GroupsController', $except);
+    Route::resource('educPlan', 'EducPlansController', $except);
 });

@@ -23,9 +23,11 @@ Route::group(['middleware' => ['jwt.auth']], function() {
 
     Route::resource('educPlan/{educPlan}/course', 'CoursesController', $contextExcept);
     Route::resource('course/{course}/group', 'GroupsController', $contextExcept);
+    Route::resource('group/{group}/student', 'StudentsController', $contextExcept);    
     Route::resource('educPlan', 'EducPlansController', $contextExcept);
-
+    
     Route::resource('educPlan', 'EducPlansController', $except);
     Route::resource('course', 'CoursesController', $except);
     Route::resource('group', 'GroupsController', $except);
+
 });

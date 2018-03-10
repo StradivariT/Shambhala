@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Context;
 
-class ContextsController extends Controller
-{
+class ContextsController extends Controller {
     public function index() {
         $contexts = Context::all('id', 'name');
 

@@ -7,15 +7,8 @@ use Illuminate\Http\Request;
 use \Validator;
 use App\Group;
 
-class GroupsController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index($id)
-    {
+class GroupsController extends Controller {
+    public function index($id) {
         $groups = Group::where('course_id', '=', $id)->get();
 
         if($groups->isEmpty())
@@ -24,14 +17,7 @@ class GroupsController extends Controller
         return response()->json(['resources' => $groups], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store($id, Request $request)
-    {
+    public function store($id, Request $request) {
         $validator = Validator::make(
             ['name' => $request->input('newResource')], 
             ['name' => 'unique:groups']
@@ -52,26 +38,11 @@ class GroupsController extends Controller
         return response()->json(['newResource' => $newGroup], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         //
     }
 }

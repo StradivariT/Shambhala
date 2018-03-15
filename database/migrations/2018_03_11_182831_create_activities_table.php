@@ -20,10 +20,10 @@ class CreateActivitiesTable extends Migration
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
             $table->string('name');
             $table->string('file_name');
-            $table->string('file_location');
-            $table->string('grade');
-            $table->text('feedback');
-            $table->text('incidents');
+            $table->string('file_storage');
+            $table->string('grade')->nullable();
+            $table->text('feedback')->nullable();
+            $table->text('incidents')->nullable();
             $table->date('turned_in_date');
         });
     }

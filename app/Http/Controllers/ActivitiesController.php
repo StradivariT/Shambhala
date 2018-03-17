@@ -15,8 +15,10 @@ class ActivitiesController extends Controller {
         return response()->json(['activities' => $activities], 200);
     }
 
-    public function store(Request $request) {
-        //
+    public function store(Request $request, $id) {
+        echo "id: ". $id;
+        echo '<br>';
+        print_r($request);
     }
 
     public function show($id) {

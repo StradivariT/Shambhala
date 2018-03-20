@@ -37,7 +37,7 @@ class ActivitiesController extends Controller {
             return response()->json(['message' => 'Unexpected activity error', 'error' => $e], 500);
         }
 
-        return response()->json(['newActivity' => $newActivity], 200);        
+        return response()->json(['newActivity' => ['id' => $newActivity->id, 'name' => $newActivity->name]], 200);        
     }
 
     public function show($id) {

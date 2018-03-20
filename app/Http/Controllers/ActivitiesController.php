@@ -16,9 +16,28 @@ class ActivitiesController extends Controller {
     }
 
     public function store(Request $request, $id) {
-        echo "id: ". $id;
-        echo '<br>';
-        print_r($request);
+        $activityRequestFile = $request->file('newActivityFile');
+
+        $activityFileName = $activityRequestFile->getClientOriginalName();
+        $activityFileExtension = $activityRequestFile->getClientOriginalExtension();
+
+        $activityStorageName = $this->random_string(50) . '.' . $activityFileExtension;
+
+        try {
+            $activityRequestFile->storeAs('public/activityFiles/' . $id, $activityStorageName);
+
+            $newActivity = new Activity;
+            $newActivity->name = $request->input('newActivityName');
+            $newActivity->turned_in_date = $request->input('turnedInDate');
+            $newActivity->file_name = $activityFileName;
+            $newActivity->file_storage = $activityStorageName;
+            $newActivity->student_id = $id;
+            $newActivity->save();
+        } catch(Exception $e) {
+            return response()->json(['message' => 'Unexpected activity error', 'error' => $e], 500);
+        }
+
+        return response()->json(['newActivity' => $newActivity], 200);        
     }
 
     public function show($id) {
@@ -31,5 +50,20 @@ class ActivitiesController extends Controller {
 
     public function destroy($id) {
         //
+    }
+
+    public function download($id) {
+        //
+    }
+
+    private function random_string($length) {
+        $key = '';
+        $keys = array_merge(range(0, 9), range('a', 'z'));
+    
+        for ($i = 0; $i < $length; $i++) {
+            $key .= $keys[array_rand($keys)];
+        }
+    
+        return $key;
     }
 }

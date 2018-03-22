@@ -20,6 +20,7 @@ Route::group(['middleware' => ['jwt.auth']], function() {
     $except = ['except' => ['index', 'store', 'create', 'edit']];
 
     Route::get('context', 'ContextsController@index');
+    Route::get('activity/{activity}/file', 'ActivitiesController@download');
 
     Route::resource('student/{student}/activity', 'ActivitiesController', $contextExcept);
     Route::resource('educPlan/{educPlan}/course', 'CoursesController', $contextExcept);

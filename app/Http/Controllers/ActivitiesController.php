@@ -46,7 +46,7 @@ class ActivitiesController extends Controller {
         if($activity->isEmpty()) 
             return response()->json(['message' => 'Activity not found for id: ' . $id . '.'], 404);
 
-        return response()->json(['activity' => $activity->toArray()[0]], 200);
+        return response()->json(['activity' => $activity->first()], 200);
     }
 
     public function update(Request $request, $id) {
@@ -63,9 +63,9 @@ class ActivitiesController extends Controller {
             return response()->json(['message' => 'Unexpected activity error', 'error' => $e], 500);
         }
 
-        $activity = $activity->get(['id', 'name', 'turned_in_date as turnedInDate', 'feedback', 'incidents', 'file_name as fileName', 'grade']);
+        $activity = $activity->get(['id', 'name', 'turned_in_date as turnedInDate', 'feedback', 'incidents', 'file_name as fileName', 'grade'])->first();
 
-        return response()->json(['activity' => $activity->toArray()[0]], 200);
+        return response()->json(['activity' => $activity], 200);
     }
 
     public function destroy($id) {
@@ -73,11 +73,11 @@ class ActivitiesController extends Controller {
     }
 
     public function download($id) {
-        $activity = $activity = Activity::where('id', $id)->get(['student_id', 'file_storage', 'file_name'])->toArray()[0];
+        $activity = $activity = Activity::where('id', $id)->get(['student_id', 'file_storage'])->first();
 
         $file = public_path() . '/storage/activityFiles/' . $activity['student_id'] . '/' . $activity['file_storage'];
 
-        return response()->download($file, 'file_name');
+        return response()->download($file);
     }
 
     private function random_string($length) {

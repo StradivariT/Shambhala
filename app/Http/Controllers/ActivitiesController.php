@@ -68,10 +68,6 @@ class ActivitiesController extends Controller {
         return response()->json(['activity' => $activity], 200);
     }
 
-    public function destroy($id) {
-        //
-    }
-
     public function download($id) {
         $activity = $activity = Activity::where('id', $id)->get(['student_id', 'file_storage'])->first();
 

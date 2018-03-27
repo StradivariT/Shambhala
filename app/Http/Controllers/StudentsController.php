@@ -34,10 +34,6 @@ class StudentsController extends Controller {
 
         return response()->json(['newStudent' => $newStudent], 200);
     }
-    
-    public function show($id) {
-        //
-    }
 
     public function update(Request $request, $id) {
         $data = $request->except(['token']);
@@ -49,9 +45,5 @@ class StudentsController extends Controller {
         }
 
         return response()->json(['name' => $data['name'], 'number' => $data['number']], 200);
-    }
-
-    public function destroy($id) {
-        //
     }
 }

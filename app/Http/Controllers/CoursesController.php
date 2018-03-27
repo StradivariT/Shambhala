@@ -61,8 +61,4 @@ class CoursesController extends Controller {
 
         return response()->json(['information' => $data['information']], 200);
     }
-
-    public function destroy($id) {
-        //
-    }
 }

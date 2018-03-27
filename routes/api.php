@@ -21,6 +21,8 @@ Route::group(['middleware' => ['jwt.auth']], function() {
 
     Route::get('context', 'ContextsController@index');
     Route::get('activity/{activity}/file', 'ActivitiesController@download');
+    Route::get('group/{activity}/file/{fileType}', 'GroupsController@download');
+    Route::post('group/{activity}/file', 'GroupsController@uploadFile');
 
     Route::resource('student/{student}/activity', 'ActivitiesController', $contextExcept);
     Route::resource('educPlan/{educPlan}/course', 'CoursesController', $contextExcept);

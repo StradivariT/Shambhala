@@ -14,4 +14,12 @@ class ContextsController extends Controller {
 
         return response()->json(['contexts' => $contexts], 200);
     }
+
+    public function update(Request $request, $id) {
+        echo $request->input('educPlanName');
+        echo '   ';
+        echo $request->input('courseName');
+        echo '   ';
+        echo $request->input('groupName');
+    }
 }

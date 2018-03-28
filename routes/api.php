@@ -20,6 +20,7 @@ Route::group(['middleware' => ['jwt.auth']], function() {
     $except = ['except' => ['index', 'store', 'create', 'edit']];
 
     Route::get('context', 'ContextsController@index');
+    Route::patch('context/{context}', 'ContextsController@update');
     Route::get('activity/{activity}/file', 'ActivitiesController@download');
     Route::get('group/{activity}/file/{fileType}', 'GroupsController@download');
     Route::post('group/{activity}/file', 'GroupsController@uploadFile');

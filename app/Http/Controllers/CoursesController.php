@@ -61,4 +61,30 @@ class CoursesController extends Controller {
 
         return response()->json(['information' => $data['information']], 200);
     }
+
+    public function updateName($newName, $id) {
+        $course = Course::where('id', $id);
+
+        $data = ['name' => $newName];
+
+        try {
+            $course->update($data);
+        } catch(Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isUniqueName($name) {
+        $validator = Validator::make(
+            ['name' => $name], 
+            ['name' => 'unique:courses']
+        );
+
+        if($validator->fails())
+            return false;
+
+        return true;
+    }
 }

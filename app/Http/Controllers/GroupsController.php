@@ -93,8 +93,18 @@ class GroupsController extends Controller {
         return response()->json(['groupFileNames' => $groupFileNames->first()], 200); 
     }
 
-    public function update(Request $request, $id) {
-        //
+    public function update($newName, $id) {
+        $group = Group::where('id', $id);
+
+        $data = ['name' => $newName];
+
+        try {
+            $group->update($data);
+        } catch(Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     private function random_string($length) {
@@ -106,5 +116,17 @@ class GroupsController extends Controller {
         }
     
         return $key;
+    }
+
+    public function isUniqueName($name) {
+        $validator = Validator::make(
+            ['name' => $name], 
+            ['name' => 'unique:groups']
+        );
+
+        if($validator->fails())
+            return false;
+
+        return true;
     }
 }

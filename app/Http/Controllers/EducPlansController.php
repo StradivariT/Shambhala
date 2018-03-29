@@ -36,7 +36,29 @@ class EducPlansController extends Controller {
         return response()->json(['newResource' => $newEducPlan], 200);
     }
 
-    public function update(Request $request, $id) {
-        // 
+    public function update($newName, $id) {
+        $educPlan = EducPlan::where('id', $id);
+
+        $data = ['name' => $newName];
+
+        try {
+            $educPlan->update($data);
+        } catch(Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isUniqueName($name) {
+        $validator = Validator::make(
+            ['name' => $name], 
+            ['name' => 'unique:educ_plans']
+        );
+
+        if($validator->fails())
+            return false;
+
+        return true;
     }
 }

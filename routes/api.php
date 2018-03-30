@@ -19,8 +19,11 @@ Route::group(['middleware' => ['jwt.auth']], function() {
     $contextExcept = ['except' => ['create', 'edit', 'update', 'destroy', 'show']];
     $except = ['except' => ['index', 'store', 'create', 'edit']];
 
-    Route::get('context', 'ContextsController@index');
+    //Context routes. The PATCH one is for updating the sub-contexts, only there for managing each one of them.
+    Route::get('context',             'ContextsController@index');
     Route::patch('context/{context}', 'ContextsController@update');
+
+    //Other routes...
     Route::get('activity/{activity}/file', 'ActivitiesController@download');
     Route::get('group/{activity}/file/{fileType}', 'GroupsController@download');
     Route::post('group/{activity}/file', 'GroupsController@uploadFile');

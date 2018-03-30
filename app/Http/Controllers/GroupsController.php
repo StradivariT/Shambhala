@@ -3,40 +3,41 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-use \Validator;
-use App\Group;
 use Illuminate\Support\Facades\Storage;
 
+use \Validator;
+
+use App\Helpers\Utils;
+
+use App\Group;
+
 class GroupsController extends Controller {
-    public function index($id) {
-        $groups = Group::where('course_id', '=', $id)->get();
+    public function index($courseId) {
+        $groups = Group::where('course_id', '=', $courseId)->get();
 
         if($groups->isEmpty())
-            return response()->json(['message' => 'Groups not found for course: ' . $id . '.'], 404);
+            return response()->json('Groups not found for course: ' . $courseId, 404);
 
-        return response()->json(['resources' => $groups], 200);
+        return response()->json($groups, 200);
     }
 
-    public function store($id, Request $request) {
-        $validator = Validator::make(
-            ['name' => $request->input('newResource')], 
-            ['name' => 'unique:groups']
-        );
+    public function store(Request $request, $courseId) {
+        $newGroupName = $request->input('newResource');
 
-        if($validator->fails())
-            return response()->json(['message' => 'Group already exists'], 400);
+        if(!Utils::isUniqueName($newGroupName, 'groups'))
+            return response()->json('Group already exists', 400);
 
         try {
             $newGroup = new Group;
             $newGroup->name = $request->input('newResource');
-            $newGroup->course_id = $id;
+            $newGroup->course_id = $courseId;
             $newGroup->save();
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected group error', 'error' => $e], 500);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected group error', 500);
         }
 
-        return response()->json(['newResource' => $newGroup], 200);
+        return response()->json($newGroup, 200);
     }
 
     public function uploadFile(Request $request, $id) {
@@ -57,7 +58,7 @@ class GroupsController extends Controller {
         $groupFileName = $groupRequestFile->getClientOriginalName();
         $groupFileExtension = $groupRequestFile->getClientOriginalExtension();
 
-        $groupStorageName = $this->random_string(50) . '.' . $groupFileExtension;
+        $groupStorageName = Utils::randomString(50) . '.' . $groupFileExtension;
 
         $data = array();
 
@@ -103,29 +104,6 @@ class GroupsController extends Controller {
         } catch(Exception $e) {
             return false;
         }
-
-        return true;
-    }
-
-    private function random_string($length) {
-        $key = '';
-        $keys = array_merge(range(0, 9), range('a', 'z'));
-    
-        for ($i = 0; $i < $length; $i++) {
-            $key .= $keys[array_rand($keys)];
-        }
-    
-        return $key;
-    }
-
-    public function isUniqueName($name) {
-        $validator = Validator::make(
-            ['name' => $name], 
-            ['name' => 'unique:groups']
-        );
-
-        if($validator->fails())
-            return false;
 
         return true;
     }

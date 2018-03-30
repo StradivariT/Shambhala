@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
+use App\Helpers\Utils;
+
 use App\Activity;
 
 class ActivitiesController extends Controller {
@@ -21,7 +24,7 @@ class ActivitiesController extends Controller {
         $activityFileName = $activityRequestFile->getClientOriginalName();
         $activityFileExtension = $activityRequestFile->getClientOriginalExtension();
 
-        $activityStorageName = $this->random_string(50) . '.' . $activityFileExtension;
+        $activityStorageName = Utils::randomString() . '.' . $activityFileExtension;
 
         try {
             $activityRequestFile->storeAs('public/activityFiles/' . $id, $activityStorageName);
@@ -74,16 +77,5 @@ class ActivitiesController extends Controller {
         $file = public_path() . '/storage/activityFiles/' . $activity['student_id'] . '/' . $activity['file_storage'];
 
         return response()->download($file);
-    }
-
-    private function random_string($length) {
-        $key = '';
-        $keys = array_merge(range(0, 9), range('a', 'z'));
-    
-        for ($i = 0; $i < $length; $i++) {
-            $key .= $keys[array_rand($keys)];
-        }
-    
-        return $key;
     }
 }

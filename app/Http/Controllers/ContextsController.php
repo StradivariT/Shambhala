@@ -3,20 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use App\Context;
+
+use App\Helpers\Utils;
+
 use App\Http\Controllers\EducPlansController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\GroupsController;
-
 
 class ContextsController extends Controller {
     public function index() {
         $contexts = Context::all('id', 'name');
 
         if($contexts->isEmpty())
-            return response()->json(['error' => 'Contexts not found'], 404);
+            return response()->json('Contexts not found', 404);
 
-        return response()->json(['contexts' => $contexts], 200);
+        return response()->json($contexts, 200);
     }
 
     public function update(Request $request, $id) {
@@ -27,13 +30,13 @@ class ContextsController extends Controller {
         $groupName = $request->input('groupName');
         $groupId = $request->input('groupId');
 
-        if(!app('App\Http\Controllers\EducPlansController')->isUniqueName($educPlanName))
+        if(!Utils::isUniqueName($educPlanName, 'educ_plans'))
             return response()->json(['error' => 'Ya existe un plan educativo con ese nombre.'], 400);
         
-        if(!app('App\Http\Controllers\CoursesController')->isUniqueName($courseName))
+        if(!Utils::isUniqueName($courseName, 'courses'))
             return response()->json(['error' => 'Ya existe un curso con ese nombre.'], 400);
         
-        if(!app('App\Http\Controllers\GroupsController')->isUniqueName($groupName))
+        if(!Utils::isUniqueName($groupName, 'groups'))
             return response()->json(['error' => 'Ya existe un grupo con ese nombre.'], 400);
 
         if($educPlanName) {

@@ -5,37 +5,38 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use \Validator;
+
+use App\Helpers\Utils;
+
 use App\Course;
 
 class CoursesController extends Controller {
-    public function index($id) {
-        $courses = Course::where('educ_plan_id', '=', $id)->get();
+    public function index($educPlanId) {
+        $courses = Course::where('educ_plan_id', '=', $educPlanId)->get();
 
         if($courses->isEmpty())
-            return response()->json(['message' => 'Courses not found for educ plan: ' . $id . '.'], 404);
+            return response()->json('Courses not found for educ plan: ' . $educPlanId, 404);
 
-        return response()->json(['resources' => $courses], 200);
+        return response()->json($courses, 200);
     }
 
-    public function store($id, Request $request) {
-        $validator = Validator::make(
-            ['name' => $request->input('newResource')], 
-            ['name' => 'unique:courses']
-        );
+    public function store(Request $request, $educPlanId) {
+        $newCourseName = $request->input('newResource');
 
-        if($validator->fails())
-            return response()->json(['message' => 'Course already exists'], 400);
+        if(!Utils::isUniqueName($newCourseName, 'courses'))
+            return response()->json('Course already exists', 400);
 
         try {
             $newCourse = new Course;
-            $newCourse->name = $request->input('newResource');
-            $newCourse->educ_plan_id = $id;
+            $newCourse->name = $newCourseName;
+            $newCourse->educ_plan_id = $educPlanId;
             $newCourse->save();
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected course error', 'error' => $e], 500);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected course error', 500);
         }
 
-        return response()->json(['newResource' => $newCourse], 200);
+        return response()->json($newCourse, 200);
     }
 
     public function show($id) {
@@ -72,18 +73,6 @@ class CoursesController extends Controller {
         } catch(Exception $e) {
             return false;
         }
-
-        return true;
-    }
-
-    public function isUniqueName($name) {
-        $validator = Validator::make(
-            ['name' => $name], 
-            ['name' => 'unique:courses']
-        );
-
-        if($validator->fails())
-            return false;
 
         return true;
     }

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Exceptions\JWTException;
+
 use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UsersController extends Controller {
     public function login(Request $request) {

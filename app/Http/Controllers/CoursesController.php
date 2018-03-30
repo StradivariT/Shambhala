@@ -28,8 +28,10 @@ class CoursesController extends Controller {
 
         try {
             $newCourse = new Course;
+
             $newCourse->name = $newCourseName;
             $newCourse->educ_plan_id = $educPlanId;
+            
             $newCourse->save();
         } catch(Exception $error) {
             //TODO: Log $error
@@ -39,28 +41,29 @@ class CoursesController extends Controller {
         return response()->json($newCourse, 200);
     }
 
-    public function show($id) {
-        $course = Course::find($id);
+    public function show($courseId) {
+        $course = Course::find($courseId);
 
         if(empty($course))
-            return response()->json(['message' => 'Course not found, invalid ID'], 400);
+            return response()->json('Course not found, invalid ID', 400);
 
         if(empty($course->information))
-            return response()->json(['message' => 'Information for course not found'], 404);
+            return response()->json('Information for course not found', 404);
 
-        return response()->json(['information' => $course->information], 200);
+        return response()->json($course->information, 200);
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $courseId) {
         $data = $request->except(['token']);
 
         try {
-            Course::where('id', $id)->update($data);
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected course error', 'error' => $e], 500);
+            Course::find($courseId)->update($data);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected course error', 500);
         }
 
-        return response()->json(['information' => $data['information']], 200);
+        return response()->json($data['information'], 200);
     }
 
     public function updateName($newName, $id) {

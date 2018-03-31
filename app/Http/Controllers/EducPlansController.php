@@ -28,14 +28,21 @@ class EducPlansController extends Controller {
 
         try {
             $newEducPlan = new EducPlan;
+
             $newEducPlan->name = $newEducPlanName;
+            
             $newEducPlan->save();
         } catch(Exception $error) {
             //TODO: Log $error
             return response()->json('Unexpected educ plan error', 500);
         }
 
-        return response()->json($newEducPlan, 200);
+        $newEducPlanResponse = [
+            'id'   => $newEducPlan->id,
+            'name' => $newEducPlanName
+        ];
+
+        return response()->json($newEducPlanResponse, 200);
     }
 
     public function update($newName, $id) {

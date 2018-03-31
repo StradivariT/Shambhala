@@ -9,70 +9,78 @@ use App\Helpers\Utils;
 use App\Activity;
 
 class ActivitiesController extends Controller {
-    public function index($id) {   
-        $activities = Activity::select('id', 'name')->where('student_id', '=', $id)->get();
+    public function index($studentId) {   
+        $activities = Activity::select('id', 'name')->where('student_id', '=', $studentId)->get();
 
         if($activities->isEmpty())
-            return response()->json(['message' => 'Activities not found for student: ' . $id . '.'], 404);
+            return response()->json('Activities not found for student: ' . $studentId, 404);
 
-        return response()->json(['activities' => $activities], 200);
+        return response()->json($activities, 200);
     }
 
-    public function store(Request $request, $id) {
-        $activityRequestFile = $request->file('newActivityFile');
-
-        $activityFileName = $activityRequestFile->getClientOriginalName();
-        $activityFileExtension = $activityRequestFile->getClientOriginalExtension();
-
-        $activityStorageName = Utils::randomString() . '.' . $activityFileExtension;
+    public function store(Request $request, $studentId) {
+        $newActivityFile = $request->file('file');
+        $newActivityInfo = $request->except(['token', 'file']);
 
         try {
-            $activityRequestFile->storeAs('public/activityFiles/' . $id, $activityStorageName);
+            $activityStorageName = Utils::randomString() . '.' . $newActivityFile->getClientOriginalExtension();
+            $newActivityFile->storeAs('public/activityFiles/' . $studentId, $activityStorageName);
 
             $newActivity = new Activity;
-            $newActivity->name = $request->input('newActivityName');
-            $newActivity->turned_in_date = $request->input('turnedInDate');
-            $newActivity->file_name = $activityFileName;
+
+            $newActivity->name = $newActivityInfo['name'];
+            $newActivity->turned_in_date = $newActivityInfo['turnedInDate'];
+            $newActivity->file_name = $newActivityFile->getClientOriginalName();
             $newActivity->file_storage = $activityStorageName;
-            $newActivity->student_id = $id;
+            $newActivity->student_id = $studentId;
+            
             $newActivity->save();
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected activity error', 'error' => $e], 500);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected activity error', 500);
         }
 
-        return response()->json(['newActivity' => ['id' => $newActivity->id, 'name' => $newActivity->name]], 200);        
+        $newActivityResponse = [
+            'id'   => $newActivity->id,
+            'name' => $newActivityInfo['name']
+        ];
+
+        return response()->json($newActivityResponse, 200);        
     }
 
-    public function show($id) {
-        $activity = Activity::where('id', $id)->get(['id', 'name', 'turned_in_date as turnedInDate', 'feedback', 'incidents', 'file_name as fileName', 'grade']);
+    public function show($activityId) {
+        $activity = Activity::find($activityId, ['id', 'name', 'turned_in_date as turnedInDate', 'feedback', 'incidents', 'file_name as fileName', 'grade']);
      
-        if($activity->isEmpty()) 
-            return response()->json(['message' => 'Activity not found for id: ' . $id . '.'], 404);
+        if(empty($activity))
+            return response()->json('Activity not found for id: ' . $id, 404);
 
-        return response()->json(['activity' => $activity->first()], 200);
+        return response()->json($activity, 200);
     }
 
-    public function update(Request $request, $id) {
-        $activity = Activity::where('id', $id);
+    public function update(Request $request, $activityId) {
+        $updatedActivityInfo = $request->except(['token', 'id']);
 
-        $data = $request->except(['token', 'id']);
+        $updatedActivityInfo['turned_in_date'] = $updatedActivityInfo['turnedInDate'];
+        unset($updatedActivityInfo['turnedInDate']);
 
-        $data['turned_in_date'] = $data['turnedInDate'];
-        unset($data['turnedInDate']);
-
+        $activity = Activity::find($activityId);
         try {
-            $activity->update($data);
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected activity error', 'error' => $e], 500);
+            $activity->update($updatedActivityInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected activity error', 500);
         }
 
-        $activity = $activity->get(['id', 'name', 'turned_in_date as turnedInDate', 'feedback', 'incidents', 'file_name as fileName', 'grade'])->first();
-
-        return response()->json(['activity' => $activity], 200);
+        $updatedActivityInfo['id'] = $activity->id;
+        $updatedActivityInfo['fileName'] = $activity->file_name;
+        $updatedActivityInfo['turnedInDate'] = $updatedActivityInfo['turned_in_date'];
+        unset($updatedActivityInfo['turned_in_date']);
+        
+        return response()->json($updatedActivityInfo, 200);
     }
 
-    public function download($id) {
-        $activity = $activity = Activity::where('id', $id)->get(['student_id', 'file_storage'])->first();
+    public function download($activityId) {
+        $activity = $activity = Activity::find($activityId, ['student_id', 'file_storage']);
 
         $file = public_path() . '/storage/activityFiles/' . $activity['student_id'] . '/' . $activity['file_storage'];
 

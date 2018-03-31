@@ -44,15 +44,15 @@ class StudentsController extends Controller {
     }
 
     public function update(Request $request, $studentId) {
-        $data = $request->except(['token']);
+        $updatedStudentInfo = $request->except(['token']);
 
         try {
-            Student::where('id', $studentId)->update($data);
+            Student::find($studentId)->update($updatedStudentInfo);
         } catch(Exception $error) {
             //TODO: Log $error
             return response()->json('Unexpected student error', 500);
         }
 
-        return response()->json(['name' => $data['name'], 'number' => $data['number']], 200);
+        return response()->json($updatedStudentInfo, 200);
     }
 }

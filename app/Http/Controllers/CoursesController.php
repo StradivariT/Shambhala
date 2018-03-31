@@ -12,7 +12,7 @@ use App\Course;
 
 class CoursesController extends Controller {
     public function index($educPlanId) {
-        $courses = Course::where('educ_plan_id', '=', $educPlanId)->get();
+        $courses = Course::select('id', 'name')->where('educ_plan_id', '=', $educPlanId)->get();
 
         if($courses->isEmpty())
             return response()->json('Courses not found for educ plan: ' . $educPlanId, 404);
@@ -38,7 +38,12 @@ class CoursesController extends Controller {
             return response()->json('Unexpected course error', 500);
         }
 
-        return response()->json($newCourse, 200);
+        $newCourseResponse = [
+            'id'   => $newCourse->id,
+            'name' => $newCourseName
+        ];
+
+        return response()->json($newCourseResponse, 200);
     }
 
     public function show($courseId) {
@@ -54,16 +59,16 @@ class CoursesController extends Controller {
     }
 
     public function update(Request $request, $courseId) {
-        $data = $request->except(['token']);
+        $updatedCourseInfo = $request->except(['token']);
 
         try {
-            Course::find($courseId)->update($data);
+            Course::find($courseId)->update($updatedCourseInfo);
         } catch(Exception $error) {
             //TODO: Log $error
             return response()->json('Unexpected course error', 500);
         }
 
-        return response()->json($data['information'], 200);
+        return response()->json($updatedCourseInfo, 200);
     }
 
     public function updateName($newName, $id) {

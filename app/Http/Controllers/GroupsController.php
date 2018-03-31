@@ -13,7 +13,7 @@ use App\Group;
 
 class GroupsController extends Controller {
     public function index($courseId) {
-        $groups = Group::where('course_id', '=', $courseId)->get();
+        $groups = Group::select('id', 'name')->where('course_id', '=', $courseId)->get();
 
         if($groups->isEmpty())
             return response()->json('Groups not found for course: ' . $courseId, 404);
@@ -29,15 +29,22 @@ class GroupsController extends Controller {
 
         try {
             $newGroup = new Group;
-            $newGroup->name = $request->input('newResource');
+
+            $newGroup->name = $newGroupName;
             $newGroup->course_id = $courseId;
+            
             $newGroup->save();
         } catch(Exception $error) {
             //TODO: Log $error
             return response()->json('Unexpected group error', 500);
         }
 
-        return response()->json($newGroup, 200);
+        $newGroupResponse = [
+            'id'   => $newGroup->id,
+            'name' => $newGroupName
+        ];
+
+        return response()->json($newGroupResponse, 200);
     }
 
     public function uploadFile(Request $request, $id) {

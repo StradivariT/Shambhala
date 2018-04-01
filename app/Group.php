@@ -4,8 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
-{
+class Group extends Model {
     protected $fillable = [
         'name',
         'participants_file_name',
@@ -16,11 +15,7 @@ class Group extends Model
         'evaluations_file_storage'
     ];
 
-    public function courses() {
-        return $this->belongsTo('App\Course');
-    }
+    public function courses() { return $this->belongsTo('App\Course'); }
     
-    public function students() {
-        return $this->hasMany('App\Student');
-    }
+    public function students() { return $this->hasMany('App\Student'); }
 }

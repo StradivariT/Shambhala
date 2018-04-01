@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Exceptions\JWTException;
+
 use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UsersController extends Controller {
     public function login(Request $request) {
@@ -12,11 +13,12 @@ class UsersController extends Controller {
 
         try {
             if(!$token = JWTAuth::attempt($credentials))
-                return response()->json(['message' => 'Invalid credentials'], 401);
+                return response()->json('Invalid credentials', 401);
         } catch(JWTException $error) {
-            return response()->json(['message' => 'Unexpected auth error', 'error' => $error], 500);
+            //TODO: Log $error
+            return response()->json('Unexpected auth error', 500);
         }
 
-        return response()->json(['token' => $token], 200);
+        return response()->json($token, 200);
     }
 }

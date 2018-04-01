@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
 use \Validator;
+
+use App\Helpers\Utils;
+
 use App\EducPlan;
 
 class EducPlansController extends Controller {
@@ -11,53 +15,45 @@ class EducPlansController extends Controller {
         $educPlans = EducPlan::all('id', 'name');
 
         if($educPlans->isEmpty())
-            return response()->json(['message' => 'Educ plans not found.'], 404);
+            return response()->json('Educ plans not found', 404);
 
-        return response()->json(['resources' => $educPlans], 200);
+        return response()->json($educPlans, 200);
     }
 
     public function store(Request $request) {
-        $validator = Validator::make(
-            ['name' => $request->input('newResource')], 
-            ['name' => 'unique:educ_plans']
-        );
+        $newEducPlanName = $request->input('newResource');
 
-        if($validator->fails())
-            return response()->json(['message' => 'Educ plan already exists'], 400);
+        if(!Utils::isUniqueName($newEducPlanName, 'educ_plans'))
+            return response()->json('Educ plan already exists', 400);
 
         try {
             $newEducPlan = new EducPlan;
-            $newEducPlan->name = $request->input('newResource');
+
+            $newEducPlan->name = $newEducPlanName;
+            
             $newEducPlan->save();
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected educ plan error', 'error' => $e], 500);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected educ plan error', 500);
         }
 
-        return response()->json(['newResource' => $newEducPlan], 200);
+        $newEducPlanResponse = [
+            'id'   => $newEducPlan->id,
+            'name' => $newEducPlanName
+        ];
+
+        return response()->json($newEducPlanResponse, 200);
     }
 
-    public function update($newName, $id) {
-        $educPlan = EducPlan::where('id', $id);
-
-        $data = ['name' => $newName];
+    public static function update($newName, $educPlanId) {
+        $updatedEducPlanInfo = ['name' => $newName];
 
         try {
-            $educPlan->update($data);
-        } catch(Exception $e) {
+            EducPlan::find($educPlanId)->update($updatedEducPlanInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
             return false;
         }
-
-        return true;
-    }
-
-    public function isUniqueName($name) {
-        $validator = Validator::make(
-            ['name' => $name], 
-            ['name' => 'unique:educ_plans']
-        );
-
-        if($validator->fails())
-            return false;
 
         return true;
     }

@@ -47,16 +47,27 @@ class GroupsController extends Controller {
         return response()->json($newGroupResponse, 200);
     }
 
-    public function uploadFile(Request $request, $id) {
-        $fileType = $request->input('fileType');       
-        $groupFile = Group::where('id', $id)->get([$fileType . '_file_storage'])->first();
+    public function show($id) {
+        $groupFileNames = Group::find($id, ['participants_file_name as participantsFileName', 'incidents_file_name as incidentsFileName', 'evaluations_file_name as evaluationsFileName']);
+        
+        if(empty($groupFileNames))
+            return response()->json('Group not found, invalid ID', 400); 
+        
+        return response()->json($groupFileNames, 200); 
+    }
 
-        if(!empty($groupFile[$fileType . '_file_storage'])) {
+    public function uploadFile(Request $request, $groupId) {
+        $fileType = $request->input('fileType');
+        $group = Group::find($groupId, [$fileType . '_file_storage']);
+
+        //If there is already a file, we will replace it be deleting the existing one and then uploading the new one.
+        if(!empty($group[$fileType . '_file_storage'])) {
             try {
-                $path = 'storage/groupFiles/' . $fileType . '/' . $id . '/' . $groupFile[$fileType . '_file_storage'];
+                $path = 'storage/groupFiles/' . $fileType . '/' . $groupId . '/' . $group[$fileType . '_file_storage'];
                 unlink(public_path($path));
-            } catch(Exception $e) {
-                return response()->json(['message' => 'Unexpected group error', 'error' => $e], 500);
+            } catch(Exception $error) {
+                //TODO: Log $error
+                return response()->json('Unexpected group error', 500);
             }
         }
 
@@ -67,38 +78,29 @@ class GroupsController extends Controller {
 
         $groupStorageName = Utils::randomString(50) . '.' . $groupFileExtension;
 
-        $data = array();
-
         try {
-            $groupRequestFile->storeAs('public/groupFiles/' . $fileType . '/' . $id, $groupStorageName);
+            $groupRequestFile->storeAs('public/groupFiles/' . $fileType . '/' . $groupId, $groupStorageName);
 
-            $group = Group::where('id', $id)->first();
+            $groupFileInfo = [
+                $fileType . '_file_name'    => $groupFileName,
+                $fileType . '_file_storage' => $groupStorageName
+            ];
 
-            $data[$fileType . '_file_name'] = $groupFileName;
-            $data[$fileType . '_file_storage'] = $groupStorageName;
-            $group->update($data);
-        } catch(Exception $e) {
-            return response()->json(['message' => 'Unexpected group error', 'error' => $e], 500);
+            Group::find($groupId)->update($groupFileInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected group error', 500);
         }
 
-        return response()->json(['groupFileName' => $groupFileName], 200);  
+        return response()->json($groupFileName, 200);  
     }
 
-    public function download($id, $fileType) {
-        $group = $group = Group::where('id', $id)->get([$fileType . '_file_storage'])->first();
+    public function download($groupId, $fileType) {
+        $group = Group::find($groupId, [$fileType . '_file_storage']);
 
-        $file = public_path() . '/storage/groupFiles/' . $fileType . '/' . $id . '/' . $group[$fileType . '_file_storage'];
+        $file = public_path() . '/storage/groupFiles/' . $fileType . '/' . $groupId . '/' . $group[$fileType . '_file_storage'];
 
         return response()->download($file);
-    }
-
-    public function show($id) {
-        $groupFileNames = Group::where('id', $id)->get(['participants_file_name as participantsFileName', 'incidents_file_name as incidentsFileName', 'evaluations_file_name as evaluationsFileName']);
-        
-        if($groupFileNames->isEmpty())
-            return response()->json(['message' => 'Group not found, invalid ID'], 400); 
-        
-        return response()->json(['groupFileNames' => $groupFileNames->first()], 200); 
     }
 
     public function update($newName, $id) {

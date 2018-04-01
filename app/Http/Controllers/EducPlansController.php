@@ -45,14 +45,13 @@ class EducPlansController extends Controller {
         return response()->json($newEducPlanResponse, 200);
     }
 
-    public function update($newName, $id) {
-        $educPlan = EducPlan::where('id', $id);
-
-        $data = ['name' => $newName];
+    public static function update($newName, $educPlanId) {
+        $updatedEducPlanInfo = ['name' => $newName];
 
         try {
-            $educPlan->update($data);
-        } catch(Exception $e) {
+            EducPlan::find($educPlanId)->update($updatedEducPlanInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
             return false;
         }
 

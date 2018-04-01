@@ -71,14 +71,13 @@ class CoursesController extends Controller {
         return response()->json($updatedCourseInfo, 200);
     }
 
-    public function updateName($newName, $id) {
-        $course = Course::where('id', $id);
-
-        $data = ['name' => $newName];
+    public static function updateName($newName, $courseId) {
+        $updatedCourseInfo = ['name' => $newName];
 
         try {
-            $course->update($data);
-        } catch(Exception $e) {
+            Course::find($courseId)->update($updatedCourseInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
             return false;
         }
 

@@ -23,42 +23,37 @@ class ContextsController extends Controller {
     }
 
     public function update(Request $request, $id) {
-        $educPlanName = $request->input('educPlanName');
         $educPlanId = $request->input('educPlanId');
-        $courseName = $request->input('courseName');
+        $educPlanName = $request->input('educPlanName');
+
         $courseId = $request->input('courseId');
-        $groupName = $request->input('groupName');
+        $courseName = $request->input('courseName');
+
         $groupId = $request->input('groupId');
+        $groupName = $request->input('groupName');
 
         if(!Utils::isUniqueName($educPlanName, 'educ_plans'))
-            return response()->json(['error' => 'Ya existe un plan educativo con ese nombre.'], 400);
+            return response()->json('Ya existe un plan educativo con ese nombre.', 400);
         
         if(!Utils::isUniqueName($courseName, 'courses'))
-            return response()->json(['error' => 'Ya existe un curso con ese nombre.'], 400);
+            return response()->json('Ya existe un curso con ese nombre.', 400);
         
         if(!Utils::isUniqueName($groupName, 'groups'))
-            return response()->json(['error' => 'Ya existe un grupo con ese nombre.'], 400);
+            return response()->json('Ya existe un grupo con ese nombre.', 400);
+            
+        if($educPlanName) 
+            if(!EducPlansController::update($educPlanName, $educPlanId))
+                return response()->json('Unexpected educ plan error', 500);
 
-        if($educPlanName) {
-            $educPlanUpdated = app('App\Http\Controllers\EducPlansController')->update($educPlanName, $educPlanId);
+        if($courseName)
+            if(!CoursesController::updateName($courseName, $courseId))
+                return response()->json('Unexpected course error', 500);
 
-            if(!$educPlanUpdated)
-                return response()->json(['error' => 'Error when updating educ plan: ', $educPlanId], 500);
-        }
+        if($groupName)
+            if(!GroupsController::update($groupName, $groupId))
+                return response()->json('Unexpected group error', 500); 
 
-        if($courseName) {
-            $courseUpdated = app('App\Http\Controllers\CoursesController')->updateName($courseName, $courseId);
-
-            if(!$courseUpdated)
-                return response()->json(['error' => 'Error when updating course: ', $educPlanId], 500);
-        }
-
-        if($groupName) {
-            $courseUpdated = app('App\Http\Controllers\GroupsController')->update($groupName, $groupId);
-
-            if(!$courseUpdated)
-                return response()->json(['error' => 'Error when updating group: ', $groupId], 500); 
-        }
+        $updatedContextResponse = [];
 
         return response()->json(['educPlanName' => $educPlanName, 'courseName' => $courseName, 'groupName' => $groupName], 200);
     }

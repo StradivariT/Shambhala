@@ -103,14 +103,13 @@ class GroupsController extends Controller {
         return response()->download($file);
     }
 
-    public function update($newName, $id) {
-        $group = Group::where('id', $id);
-
-        $data = ['name' => $newName];
+    public static function update($newName, $groupId) {
+        $updatedGroupInfo = ['name' => $newName];
 
         try {
-            $group->update($data);
-        } catch(Exception $e) {
+            Group::find($groupId)->update($updatedGroupInfo);
+        } catch(Exception $error) {
+            //TODO: Log $error
             return false;
         }
 

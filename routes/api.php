@@ -2,41 +2,33 @@
 
 use Illuminate\Http\Request;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::post('login', 'UsersController@login');
 
 Route::group(['middleware' => ['jwt.auth']], function() {
-    $contextExcept = ['except' => ['create', 'edit', 'update', 'destroy', 'show']];
-    $except = ['except' => ['index', 'store', 'create', 'edit']];
+    $dependentExcept = ['except' => ['create', 'edit', 'update', 'destroy', 'show']];
+    $independentExcept = ['except' => ['index', 'store', 'create', 'edit', 'destroy']];
+    $exceptGroup = ['except' => ['index', 'store', 'create', 'edit', 'update', 'destroy']];
+    $exceptStudent = ['except' => ['index', 'store', 'create', 'edit', 'destroy', 'show']];
 
     //Context routes. The PATCH one is for updating the sub-contexts, only there for managing each one of them.
     Route::get('context',             'ContextsController@index');
     Route::patch('context/{context}', 'ContextsController@update');
 
-    //Other routes...
-    Route::get('activity/{activity}/file', 'ActivitiesController@download');
+    //Routes for file managing
+    Route::get('activity/{activity}/file',         'ActivitiesController@download');
     Route::get('group/{activity}/file/{fileType}', 'GroupsController@download');
-    Route::post('group/{activity}/file', 'GroupsController@uploadFile');
+    Route::post('group/{activity}/file',           'GroupsController@uploadFile');
 
-    Route::resource('student/{student}/activity', 'ActivitiesController', $contextExcept);
-    Route::resource('educPlan/{educPlan}/course', 'CoursesController', $contextExcept);
-    Route::resource('course/{course}/group', 'GroupsController', $contextExcept);
-    Route::resource('group/{group}/student', 'StudentsController', $contextExcept);    
-    Route::resource('educPlan', 'EducPlansController', $contextExcept);
+    //Dependent resource routes
+    Route::resource('student/{student}/activity', 'ActivitiesController', $dependentExcept);
+    Route::resource('educPlan/{educPlan}/course', 'CoursesController', $dependentExcept);
+    Route::resource('course/{course}/group',      'GroupsController', $dependentExcept);
+    Route::resource('group/{group}/student',      'StudentsController', $dependentExcept);    
+    Route::resource('educPlan',                   'EducPlansController', $dependentExcept);
     
-    Route::resource('educPlan', 'EducPlansController', $except);
-    Route::resource('course', 'CoursesController', $except);
-    Route::resource('group', 'GroupsController', $except);
-    Route::resource('student', 'StudentsController', $except);
-    Route::resource('activity', 'ActivitiesController', $except);
+    //Independent routes, plus some exceptions
+    Route::resource('course',   'CoursesController', $independentExcept);
+    Route::resource('activity', 'ActivitiesController', $independentExcept);
+    Route::resource('group',    'GroupsController', $exceptGroup);
+    Route::resource('student',  'StudentsController', $exceptStudent);
 });

@@ -31,4 +31,6 @@ Route::group(['middleware' => ['jwt.auth']], function() {
     Route::resource('activity', 'ActivitiesController', $independentExcept);
     Route::resource('group',    'GroupsController', $exceptGroup);
     Route::resource('student',  'StudentsController', $exceptStudent);
+
+    Route::patch('group/{group}', 'GroupsController@update');
 });

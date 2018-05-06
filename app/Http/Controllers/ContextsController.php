@@ -50,7 +50,7 @@ class ContextsController extends Controller {
                 return response()->json('Unexpected course error', 500);
 
         if($groupName)
-            if(!GroupsController::update($groupName, $groupId))
+            if(!GroupsController::updateName($groupName, $groupId))
                 return response()->json('Unexpected group error', 500); 
 
         $updatedContextResponse = [];

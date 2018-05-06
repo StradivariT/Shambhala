@@ -48,7 +48,7 @@ class GroupsController extends Controller {
     }
 
     public function show($id) {
-        $groupFileNames = Group::find($id, ['participants_file_name as participantsFileName', 'incidents_file_name as incidentsFileName', 'evaluations_file_name as evaluationsFileName']);
+        $groupFileNames = Group::find($id, ['participants_file_name as participantsFileName', 'incidents_file_name as incidentsFileName', 'evaluations_file_name as evaluationsFileName', 'incidents']);
         
         if(empty($groupFileNames))
             return response()->json('Group not found, invalid ID', 400); 
@@ -103,7 +103,20 @@ class GroupsController extends Controller {
         return response()->download($file);
     }
 
-    public static function update($newName, $groupId) {
+    public function update(Request $request, $groupId) {
+        $updatedGroupIncidents = $request->except(['token']);
+
+        try {
+            Group::find($groupId)->update($updatedGroupIncidents);
+        } catch(Exception $error) {
+            //TODO: Log $error
+            return response()->json('Unexpected group error', 500);
+        }
+
+        return response()->json($updatedGroupIncidents, 200);
+    }
+
+    public static function updateName($newName, $groupId) {
         $updatedGroupInfo = ['name' => $newName];
 
         try {
